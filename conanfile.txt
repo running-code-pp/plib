@@ -14,7 +14,7 @@ CMakeDeps
 CMakeToolchain
 
 [options]
-spdlog/*:shared=True
+spdlog/*:shared=False
 cryptopp/*:shared=False
 libcurl/*:shared=True
 asio/*:header_only=True
