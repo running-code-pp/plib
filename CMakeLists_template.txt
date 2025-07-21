@@ -1,0 +1,113 @@
+# Module CMakeLists.txt Template
+# Replace MODULE_NAME with your module name (e.g., core, net, framework)
+
+# Find all source files recursively in all subdirectories
+file(GLOB_RECURSE MODULE_SOURCES 
+    "*.cpp"
+    "*.c"
+    "*.cc"
+    "*.cxx"
+)
+
+# Find all header files recursively in all subdirectories
+file(GLOB_RECURSE MODULE_HEADERS 
+    "*.h"
+    "*.hpp"
+    "*.hh"
+    "*.hxx"
+)
+
+# Find all public header files in include directory
+file(GLOB_RECURSE MODULE_PUBLIC_HEADERS 
+    "${CMAKE_SOURCE_DIR}/include/MODULE_NAME/*.h"
+    "${CMAKE_SOURCE_DIR}/include/MODULE_NAME/*.hpp"
+)
+
+# Find all private header files in private_inc directory
+file(GLOB_RECURSE MODULE_PRIVATE_HEADERS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/private_inc/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private_inc/*.hpp"
+)
+
+# Only create library if source files exist
+if(MODULE_SOURCES)
+    # Create shared library
+    add_library(plib_MODULE_NAME SHARED ${MODULE_SOURCES})
+    
+    # Set target properties
+    set_target_properties(plib_MODULE_NAME PROPERTIES
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        OUTPUT_NAME plib_MODULE_NAME
+        DEFINE_SYMBOL PLIB_EXPORTS
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN ON
+    )
+    
+    # Link dependencies (customize for each module)
+    target_link_libraries(plib_MODULE_NAME
+        spdlog::spdlog
+        nlohmann_json::nlohmann_json
+        tinyxml2::tinyxml2
+        # Add other dependencies as needed
+    )
+    
+    # Set compile options for dynamic library
+    if(MSVC)
+        target_compile_options(plib_MODULE_NAME PRIVATE /wd4251)
+        target_compile_options(plib_MODULE_NAME PRIVATE /wd4275)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(plib_MODULE_NAME PRIVATE -fvisibility=hidden)
+        target_compile_options(plib_MODULE_NAME PRIVATE -fvisibility-inlines-hidden)
+    endif()
+    
+    # Include directories
+    target_include_directories(plib_MODULE_NAME PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    )
+    
+    # Private include directories
+    target_include_directories(plib_MODULE_NAME PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/private_inc
+    )
+    
+    # Organize files for Visual Studio
+    source_group("Source Files" FILES ${MODULE_SOURCES})
+    source_group("Header Files" FILES ${MODULE_HEADERS})
+    source_group("Header Files\\Public" FILES ${MODULE_PUBLIC_HEADERS})
+    source_group("Header Files\\Private" FILES ${MODULE_PRIVATE_HEADERS})
+    
+    # Install rules
+    install(TARGETS plib_MODULE_NAME
+        EXPORT plibMODULE_NAMETargets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+    )
+    
+    # Install public headers
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/MODULE_NAME/
+        DESTINATION include/MODULE_NAME
+        FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+    )
+    
+    # Install private headers (optional)
+    if(MODULE_PRIVATE_HEADERS)
+        install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/private_inc/
+            DESTINATION include/MODULE_NAME/private
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+        )
+    endif()
+    
+    # Print found files for debugging
+    message(STATUS "MODULE_NAME module source files: ${MODULE_SOURCES}")
+    message(STATUS "MODULE_NAME module header files: ${MODULE_HEADERS}")
+    message(STATUS "MODULE_NAME module public headers: ${MODULE_PUBLIC_HEADERS}")
+    message(STATUS "MODULE_NAME module private headers: ${MODULE_PRIVATE_HEADERS}")
+    
+else()
+    message(WARNING "No source files found in MODULE_NAME module")
+endif() 

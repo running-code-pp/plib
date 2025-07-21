@@ -1,0 +1,27 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.generator": "Visual Studio 17 2022",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/build/conan_toolchain.cmake"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.installPrefix": "${workspaceFolder}/install",
+    "cmake.debugConfig": {
+        "stopOnEntry": true,
+        "cwd": "${workspaceFolder}"
+    },
+    "files.associations": {
+        "*.hpp": "cpp",
+        "*.h": "cpp",
+        "*.cpp": "cpp",
+        "*.c": "cpp"
+    },
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/include",
+        "${workspaceFolder}/include/core",
+        "${workspaceFolder}/include/framework", 
+        "${workspaceFolder}/include/network"
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+} 
