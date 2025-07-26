@@ -54,5 +54,4 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Add subdirectories for each module
 add_subdirectory(src)
-add_subdirectory(examples)
 add_subdirectory(unittest) 

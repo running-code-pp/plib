@@ -14,9 +14,10 @@
 #include <string>
 #include <memory>
 #include <cmath>
+#include "concurrent/threadpool.hpp"
 using namespace plib::core::config;
 //using namespace plib::core::type; dont use this
-
+using namespace plib::core::concurrent;
 namespace MethodNamespace {
 	template <typename Enum>
 	void TestFlags(Enum a, Enum b, Enum c) {
@@ -394,4 +395,53 @@ TEST(LoggerTest, BasicLogToFile) {
 #endif
 }
 
+TEST(ThreadPoolTest, BasicMode) {
+    ThreadPool<> pool(4);
+    std::atomic<int> counter{0};
+    for (int i = 0; i < 10; ++i) {
+        pool.detach_task([&counter] { ++counter; });
+    }
+    pool.wait();
+    EXPECT_EQ(counter, 10);
+}
 
+TEST(ThreadPoolTest, PriorityMode) {
+    ThreadPool<option_t::priority> pool(4);
+    std::vector<int> results;
+    std::mutex mtx;
+    for (int i = 0; i < 5; ++i) {
+        pool.detach_task([&results, &mtx, i] {
+            std::lock_guard<std::mutex> lock(mtx);
+            results.push_back(i);
+        }, static_cast<priority_t>(i * 10));
+    }
+    pool.wait();
+    EXPECT_EQ(results.size(), 5);
+}
+
+TEST(ThreadPoolTest, PauseMode) {
+    ThreadPool<option_t::pause> pool(2);
+    std::atomic<int> counter{0};
+    pool.pause();
+    for (int i = 0; i < 5; ++i) {
+        pool.detach_task([&counter] { ++counter; });
+    }
+    EXPECT_EQ(counter, 0); // 任务未执行
+    pool.unpause();
+    pool.wait();
+    EXPECT_EQ(counter, 5);
+}
+
+TEST(ThreadPoolTest, FutureResult) {
+    ThreadPool<> pool(2);
+    auto fut1 = pool.submit_task([] { return 42; });
+    auto fut2 = pool.submit_task([] { return std::string("hello"); });
+    EXPECT_EQ(fut1.get(), 42);
+    EXPECT_EQ(fut2.get(), "hello");
+}
+
+TEST(ThreadPoolTest, FutureException) {
+    ThreadPool<> pool(2);
+    auto fut = pool.submit_task([] { throw std::runtime_error("err"); return 1; });
+    EXPECT_THROW(fut.get(), std::runtime_error);
+}

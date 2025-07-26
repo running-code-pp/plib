@@ -22,4 +22,27 @@ namespace plib::core::utils {
 #endif
 		return ss.str();
 	}
+	std::optional<int64_t> ToInt64(const std::string &str, int base){
+		if (str.empty())
+		{
+		  return std::nullopt;
+		}
+	
+		char *end = nullptr;
+		errno = 0;
+	
+		int64_t value = std::strtoll(str.c_str(), &end, base);
+	
+		if (errno == ERANGE)
+		{
+		  return std::nullopt;
+		}
+	
+		if (end == str.c_str() || *end != '\0')
+		{
+		  return std::nullopt;
+		}
+	
+		return value;
+	  }
 }

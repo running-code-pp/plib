@@ -14,4 +14,4 @@ namespace plib::core::type {
 	};
 } // namespace plib::core::type
 
-#endif // _core_type_noncopyable_hpp_
+#endif // _core_type_noncopyable_hpp_	
