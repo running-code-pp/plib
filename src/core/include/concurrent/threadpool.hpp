@@ -43,77 +43,6 @@ namespace plib::core::concurrent {
 		friend bool operator<(const task_t& lhs, const task_t& rhs) noexcept { return lhs._priority < rhs._priority; }
 	};
 
-	template<typename T>
-	class multi_future :public std::vector<std::future<T>> {
-	public:
-		// to reuse the parent class constructor and deconstructor
-		using std::vector<std::future<T>>::vector;
-		auto get() {
-			if constexpr (std::is_void_v<T>) {
-				for (auto& f : *this) {
-					f.get();
-				}
-				return;
-			}
-			else {
-				std::vector<T> results;
-				results.reserve(this->size());
-				for (auto& f : *this) {
-					results.emplace_back(f.get());
-				}
-				return results;
-			}
-		}
-
-		template<typename R, typename P>
-		[[nodiscard]] bool wait_for(std::chrono::duration<R, P> timeout) {
-			auto remaining = timeout;
-			for (auto& f : *this) {
-				if (remaining < std::chrono::duration<R, P>::zero()) {
-					return false;
-				}
-				auto start_this = std::chrono::steady_clock::now();
-				if (f.wait_for(remaining) == std::future_status::timeout) {
-					return false;
-				}
-				auto elapsed_this = std::chrono::steady_clock::now() - start_this;
-				remaining -= elapsed_this;
-			}
-			return true;
-		}
-
-		[[nodiscard]] bool valid() const noexcept
-		{
-			bool is_valid = true;
-			for (const std::future<T>& future : *this)
-				is_valid = is_valid && future.valid();
-			return is_valid;
-		}
-
-		void wait() const {
-			for (const auto& f : *this) {
-				f.wait();
-			}
-		}
-
-		template <typename C, typename D>
-		bool wait_until(const std::chrono::time_point<C, D>& t) const
-		{
-			for (const auto& f : *this) { f.wait_until(t); if (t < std::chrono::steady_clock::now()) return false; } return true;
-		}
-
-		[[nodiscard]] std::size_t ready_count() const
-		{
-			std::size_t count = 0;
-			for (const std::future<T>& future : *this)
-			{
-				if (future.wait_for(std::chrono::duration<double>::zero()) == std::future_status::ready)
-					++count;
-			}
-			return count;
-		}
-	};
-
 	template<option_t opt = option_t::none>
 	class ThreadPool {
 	public:
@@ -281,17 +210,17 @@ namespace plib::core::concurrent {
 			}
 		}
 
-		//template <typename F>
-		//void set_cleanup_func(F&& cleanup) {
-		//	if constexpr (std::is_invocable_v<F, std::size_t>) {
-		//		_cleanFunc = std::forward<F>(cleanup);
-		//	}
-		//	else {
-		//		_cleanFunc = [cleanup = std::forward<F>(cleanup)](std::size_t) {
-		//			cleanup();
-		//			};
-		//	}
-		//}
+		template <typename F>
+		void set_cleanup_func(F&& cleanup) {
+			if constexpr (std::is_invocable_v<F, std::size_t>) {
+				_cleanupFunc = std::forward<F>(cleanup);
+			}
+			else {
+				_cleanupFunc = [cleanup = std::forward<F>(cleanup)](std::size_t) {
+					cleanup();
+					};
+			}
+		}
 
 		template<typename F>
 		void create_threads(size_t n, F&& init) {

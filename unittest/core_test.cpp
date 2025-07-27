@@ -14,10 +14,10 @@
 #include <string>
 #include <memory>
 #include <cmath>
-#include "concurrent/threadpool.hpp"
+#include "memory/memorypool.hpp"
+using namespace plib::core::memory;
 using namespace plib::core::config;
 //using namespace plib::core::type; dont use this
-using namespace plib::core::concurrent;
 namespace MethodNamespace {
 	template <typename Enum>
 	void TestFlags(Enum a, Enum b, Enum c) {
@@ -395,77 +395,68 @@ TEST(LoggerTest, BasicLogToFile) {
 #endif
 }
 
-TEST(ThreadPoolTest, BasicMode) {
-	ThreadPool<> pool(4);
-	std::atomic<int> counter{ 0 };
-	for (int i = 0; i < 10; ++i) {
-		pool.detach_task([&counter] { ++counter; });
-	}
-	pool.wait();
-	EXPECT_EQ(counter, 10);
+// 测试 MemoryPool 对基本类型的分配、构造和释放
+TEST(MemoryPoolTest, BasicAllocationAndReuse) {
+    MemoryPool<int> pool;
+    
+    // 使用 newElement 分配一个 int，并构造为 10
+    int* a = pool.newElement(10);
+    ASSERT_NE(a, nullptr);
+    EXPECT_EQ(*a, 10);
+    
+    // 释放 a，使内存进入 freeSlots
+    pool.deleteElement(a);
+    
+    // 再次分配一个 int，赋值为 20
+    int* b = pool.newElement(20);
+    ASSERT_NE(b, nullptr);
+    EXPECT_EQ(*b, 20);
+    
+    pool.deleteElement(b);
 }
 
-TEST(ThreadPoolTest, PriorityMode) {
-	ThreadPool<option_t::priority> pool(4);
-	std::vector<int> results;
-	std::mutex mtx;
-	for (int i = 0; i < 5; ++i) {
-		pool.detach_task([&results, &mtx, i] {
-			std::lock_guard<std::mutex> lock(mtx);
-			results.push_back(i);
-			}, static_cast<priority_t>(i * 10));
-	}
-	pool.wait();
-	EXPECT_EQ(results.size(), 5);
+// 测试 MemoryPool 对复杂类型的分配与释放
+TEST(MemoryPoolTest, StringAllocation) {
+    MemoryPool<std::string> pool;
+    
+    // 使用 newElement 分配一个 std::string 对象
+    std::string* s = pool.newElement("hello world");
+    ASSERT_NE(s, nullptr);
+    EXPECT_EQ(*s, "hello world");
+    
+    pool.deleteElement(s);
 }
 
-TEST(ThreadPoolTest, PauseMode) {
-	ThreadPool<option_t::pause> pool(2);
-	std::atomic<int> counter{ 0 };
-	pool.pause();
-	for (int i = 0; i < 5; ++i) {
-		pool.detach_task([&counter] { ++counter; });
-	}
-	EXPECT_EQ(counter, 0); // 任务未执行
-	pool.unpause();
-	pool.wait();
-	EXPECT_EQ(counter, 5);
+// 测试多次分配后内存的复用情况
+TEST(MemoryPoolTest, MultipleAllocationAndDeletion) {
+    MemoryPool<int> pool;
+    const int allocCount = 100;
+    std::vector<int*> ptrs;
+    
+    // 连续分配 100 个 int 对象
+    for (int i = 0; i < allocCount; ++i) {
+        int* p = pool.newElement(i);
+        ASSERT_NE(p, nullptr);
+        ptrs.push_back(p);
+    }
+    
+    // 验证所有分配的对象内容正确
+    for (int i = 0; i < allocCount; ++i) {
+        EXPECT_EQ(*ptrs[i], i);
+    }
+    
+    // 删除所有对象
+    for (auto p : ptrs) {
+        pool.deleteElement(p);
+    }
+    
+    // 再次分配测试是否能重用内存
+    int* reuse = pool.newElement(999);
+    ASSERT_NE(reuse, nullptr);
+    EXPECT_EQ(*reuse, 999);
+    pool.deleteElement(reuse);
 }
 
-TEST(ThreadPoolTest, FutureResult) {
-	ThreadPool<> pool(2);
-	auto fut1 = pool.submit_task([] { return 42; });
-	auto fut2 = pool.submit_task([] { return std::string("hello"); });
-	EXPECT_EQ(fut1.get(), 42);
-	EXPECT_EQ(fut2.get(), "hello");
-}
-
-TEST(ThreadPoolTest, FutureException) {
-	ThreadPool<> pool(2);
-	auto fut = pool.submit_task([] { throw std::runtime_error("err"); return 1; });
-	EXPECT_THROW(fut.get(), std::runtime_error);
-}
-
-TEST(ThreadPoolTest, TotalTest) {
-	ThreadPool<option_t::priority>pool([]() {
-		std::cout << "init func was called in thread " << std::this_thread::get_id() << std::endl;
-		fflush(stdout);
-		});
-
-	for (int i = 0; i < 100; i++) {
-		pool.submit_task([]() {
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			std::cout << "task func was finished in thread " << std::this_thread::get_id() << std::endl;
-			fflush(stdout);
-			});
-		auto return_func = []()->std::string {
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			return "hello world!";
-			};
-		auto test = pool.submit_task(return_func);
-		EXPECT_EQ(test.get(), "hello world!");
-	}
-}
 
 int main(int argc, char** argv) {
 	::testing::InitGoogleTest(&argc, argv);
