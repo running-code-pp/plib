@@ -20,7 +20,12 @@ if(TEST_SOURCES)
     )
     
     # Add test
-    add_test(NAME plib_tests COMMAND plib_tests)
+        add_test(NAME plib_tests COMMAND plib_tests --gtest_catch_exceptions=0)
 else()
     message(WARNING "No test source files found in unittest directory")
 endif() 
+
+
+# 添加独立的线程池测试可执行文件，不使用 gtest
+add_executable(threadpool_test threadpool_test.cpp)
+target_link_libraries(threadpool_test plib-core)

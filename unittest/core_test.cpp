@@ -375,73 +375,99 @@ TEST(LoggerTest, BasicLogToFile) {
 	config.maxFiles = 10;
 	config.maxFileSize = 32 * 1024 * 1024;
 	config.logPath = plib::core::utils::get_executable_dir();
-    LogManager::init(config);
-    LOG_INFO("float: {:.2f}", 3.14159);
-    LOG_WARN("hex: {:#x}", 255);
-    LOG_ERROR("oct: {:#o}, bin: {:#b}", 10, 10);
-    LOG_INFO("|{:>6}| |{:<6}| |{:^6}| |{:0>6}|", 42, 42, 42, 42);
-    LOG_DEBUG("str: '{}', escaped: '{{}}'", "hi");
-    LOG_INFO("{:.3}", "abcdefg");
-    LOG_INFO("{:8.3f}", 3.14159);
-    LOG_INFO("{} + {} = {}", 1, 2, 1+2);
-    int x = 42;
-    //LOG_DEBUG("ptr: {:p}", &x);
-    LOG_INFO("{:.2e}", 12345.6789);
-    LOG_INFO("{:+d} {:+d}", 42, -42);
+	LogManager::init(config);
+	LOG_INFO("float: {:.2f}", 3.14159);
+	LOG_WARN("hex: {:#x}", 255);
+	LOG_ERROR("oct: {:#o}, bin: {:#b}", 10, 10);
+	LOG_INFO("|{:>6}| |{:<6}| |{:^6}| |{:0>6}|", 42, 42, 42, 42);
+	LOG_DEBUG("str: '{}', escaped: '{{}}'", "hi");
+	LOG_INFO("{:.3}", "abcdefg");
+	LOG_INFO("{:8.3f}", 3.14159);
+	LOG_INFO("{} + {} = {}", 1, 2, 1 + 2);
+	int x = 42;
+	//LOG_DEBUG("ptr: {:p}", &x);
+	LOG_INFO("{:.2e}", 12345.6789);
+	LOG_INFO("{:+d} {:+d}", 42, -42);
 #if __cpp_lib_chrono >= 201907L
-    using namespace std::chrono;
-    auto tp = sys_days{year{2024}/5/20};
-    LOG_INFO("date: {:%Y-%m-%d}", tp);
+	using namespace std::chrono;
+	auto tp = sys_days{ year{2024} / 5 / 20 };
+	LOG_INFO("date: {:%Y-%m-%d}", tp);
 #endif
 }
 
 TEST(ThreadPoolTest, BasicMode) {
-    ThreadPool<> pool(4);
-    std::atomic<int> counter{0};
-    for (int i = 0; i < 10; ++i) {
-        pool.detach_task([&counter] { ++counter; });
-    }
-    pool.wait();
-    EXPECT_EQ(counter, 10);
+	ThreadPool<> pool(4);
+	std::atomic<int> counter{ 0 };
+	for (int i = 0; i < 10; ++i) {
+		pool.detach_task([&counter] { ++counter; });
+	}
+	pool.wait();
+	EXPECT_EQ(counter, 10);
 }
 
 TEST(ThreadPoolTest, PriorityMode) {
-    ThreadPool<option_t::priority> pool(4);
-    std::vector<int> results;
-    std::mutex mtx;
-    for (int i = 0; i < 5; ++i) {
-        pool.detach_task([&results, &mtx, i] {
-            std::lock_guard<std::mutex> lock(mtx);
-            results.push_back(i);
-        }, static_cast<priority_t>(i * 10));
-    }
-    pool.wait();
-    EXPECT_EQ(results.size(), 5);
+	ThreadPool<option_t::priority> pool(4);
+	std::vector<int> results;
+	std::mutex mtx;
+	for (int i = 0; i < 5; ++i) {
+		pool.detach_task([&results, &mtx, i] {
+			std::lock_guard<std::mutex> lock(mtx);
+			results.push_back(i);
+			}, static_cast<priority_t>(i * 10));
+	}
+	pool.wait();
+	EXPECT_EQ(results.size(), 5);
 }
 
 TEST(ThreadPoolTest, PauseMode) {
-    ThreadPool<option_t::pause> pool(2);
-    std::atomic<int> counter{0};
-    pool.pause();
-    for (int i = 0; i < 5; ++i) {
-        pool.detach_task([&counter] { ++counter; });
-    }
-    EXPECT_EQ(counter, 0); // 任务未执行
-    pool.unpause();
-    pool.wait();
-    EXPECT_EQ(counter, 5);
+	ThreadPool<option_t::pause> pool(2);
+	std::atomic<int> counter{ 0 };
+	pool.pause();
+	for (int i = 0; i < 5; ++i) {
+		pool.detach_task([&counter] { ++counter; });
+	}
+	EXPECT_EQ(counter, 0); // 任务未执行
+	pool.unpause();
+	pool.wait();
+	EXPECT_EQ(counter, 5);
 }
 
 TEST(ThreadPoolTest, FutureResult) {
-    ThreadPool<> pool(2);
-    auto fut1 = pool.submit_task([] { return 42; });
-    auto fut2 = pool.submit_task([] { return std::string("hello"); });
-    EXPECT_EQ(fut1.get(), 42);
-    EXPECT_EQ(fut2.get(), "hello");
+	ThreadPool<> pool(2);
+	auto fut1 = pool.submit_task([] { return 42; });
+	auto fut2 = pool.submit_task([] { return std::string("hello"); });
+	EXPECT_EQ(fut1.get(), 42);
+	EXPECT_EQ(fut2.get(), "hello");
 }
 
 TEST(ThreadPoolTest, FutureException) {
-    ThreadPool<> pool(2);
-    auto fut = pool.submit_task([] { throw std::runtime_error("err"); return 1; });
-    EXPECT_THROW(fut.get(), std::runtime_error);
+	ThreadPool<> pool(2);
+	auto fut = pool.submit_task([] { throw std::runtime_error("err"); return 1; });
+	EXPECT_THROW(fut.get(), std::runtime_error);
+}
+
+TEST(ThreadPoolTest, TotalTest) {
+	ThreadPool<option_t::priority>pool([]() {
+		std::cout << "init func was called in thread " << std::this_thread::get_id() << std::endl;
+		fflush(stdout);
+		});
+
+	for (int i = 0; i < 100; i++) {
+		pool.submit_task([]() {
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::cout << "task func was finished in thread " << std::this_thread::get_id() << std::endl;
+			fflush(stdout);
+			});
+		auto return_func = []()->std::string {
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			return "hello world!";
+			};
+		auto test = pool.submit_task(return_func);
+		EXPECT_EQ(test.get(), "hello world!");
+	}
+}
+
+int main(int argc, char** argv) {
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }

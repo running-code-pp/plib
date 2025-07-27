@@ -137,8 +137,23 @@ namespace plib::core::concurrent {
 			create_threads(n, std::forward<F>(init));
 		}
 
+		void destroy_threads()
+		{
+			for (std::size_t i = 0; i < _threadNum; ++i)
+				_threads[i].request_stop();
+
+			// confirm before this operation all shared resource operation has done
+			{
+				const std::scoped_lock tasks_lock(_mutex);
+			}
+			_cv_taskAvailable.notify_all();
+		}
+
 		~ThreadPool() {
-			try { wait(); }
+			try {
+				wait();
+				destroy_threads();
+			}
 			catch (...) {}
 		}
 
@@ -266,17 +281,17 @@ namespace plib::core::concurrent {
 			}
 		}
 
-		template <typename F>
-		void set_cleanup_func(F&& cleanup) {
-			if constexpr (std::is_invocable_v<F, std::size_t>) {
-				_cleanFunc = std::forward<F>(cleanup);
-			}
-			else {
-				_cleanFunc = [cleanup = std::forward<F>(cleanup)](std::size_t) {
-					cleanup();
-					};
-			}
-		}
+		//template <typename F>
+		//void set_cleanup_func(F&& cleanup) {
+		//	if constexpr (std::is_invocable_v<F, std::size_t>) {
+		//		_cleanFunc = std::forward<F>(cleanup);
+		//	}
+		//	else {
+		//		_cleanFunc = [cleanup = std::forward<F>(cleanup)](std::size_t) {
+		//			cleanup();
+		//			};
+		//	}
+		//}
 
 		template<typename F>
 		void create_threads(size_t n, F&& init) {
@@ -290,8 +305,13 @@ namespace plib::core::concurrent {
 				_initFunc = [](size_t) {};
 			}
 			_threadNum = n > 0 ? n : (std::jthread::hardware_concurrency() > 0 ? std::jthread::hardware_concurrency() : 1);
+
 			_threads = std::make_unique<std::jthread[]>(_threadNum);
-			{ std::scoped_lock tasks_lock(_mutex); _runningTaskNum = _threadNum; }
+
+			{
+				std::scoped_lock tasks_lock(_mutex);
+				_runningTaskNum = _threadNum;
+			}
 			for (std::size_t i = 0; i < _threadNum; ++i) {
 				_threads[i] = std::jthread([this, i](const std::stop_token& stop_token) { worker(stop_token, i); });
 			}
@@ -300,6 +320,7 @@ namespace plib::core::concurrent {
 		template<typename F>
 		void reset_pool(const std::size_t num_threads, F&& init) {
 			wait();
+			destroy_threads();
 			create_threads(num_threads, std::forward<F>(init));
 		}
 
@@ -358,7 +379,9 @@ namespace plib::core::concurrent {
 		}
 
 		void worker(std::stop_token stop_token, size_t index) {
-			_initFunc(index);
+			if (_initFunc) {
+				_initFunc(index);
+			}
 			while (true) {
 				std::unique_lock tasks_lock(_mutex);
 				--_runningTaskNum;
@@ -372,7 +395,9 @@ namespace plib::core::concurrent {
 						_cv_taskDone.notify_all();
 					}
 				}
-				_cv_taskAvailable.wait(tasks_lock, stop_token, [this] {
+				_cv_taskAvailable.wait(tasks_lock, stop_token, [this, &stop_token]() -> bool {
+					if (stop_token.stop_requested()) return true;
+
 					if constexpr (pause_enabled) {
 						return !(_paused || _taskQueue.empty());
 					}
@@ -397,11 +422,13 @@ namespace plib::core::concurrent {
 						}
 					}
 			}
-			_cleanFunc(index);
+			if (_cleanupFunc) {
+				_cleanupFunc(index);
+			}
 		}
 
 	private:
-		std::function<void(size_t index)>_initFunc, _cleanFunc;
+		std::function<void(size_t index)>_initFunc, _cleanupFunc;
 		std::conditional_t < priority_enabled, std::priority_queue<task_t>, std::queue<task>> _taskQueue;
 		std::unique_ptr<std::jthread[]> _threads;
 		mutable std::mutex _mutex;
