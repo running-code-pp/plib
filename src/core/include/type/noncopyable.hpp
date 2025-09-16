@@ -15,3 +15,12 @@ namespace plib::core::type {
 } // namespace plib::core::type
 
 #endif // _core_type_noncopyable_hpp_	
+
+        if (rel.type() == ivypo::RelationType::ChildOf)
+        {
+          om.AddRelation(target_id, ivy::BaseObjectManager::ChildOf, it.second);
+        }
+        else if (rel.type() == ivypo::RelationType::DependsOn)
+        {
+          om.AddRelation(it.second, ivy::BaseObjectManager::DependsOn, target_id);
+        }

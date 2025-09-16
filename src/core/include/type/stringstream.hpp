@@ -9,25 +9,25 @@
 #include <type_traits>
 
 namespace plib::core::type{
-        class Stream {
+        class StringStream {
         public:
-            Stream() = default;
-            inline Stream& operator<<(char t) { _ss << t; return *this; }
-            inline Stream& operator<<(bool t) { _ss << (t ? "true" : "false");return *this;}
-            inline Stream& operator<<(const void* t) { _ss << t; return *this; }
-            inline Stream& operator<<(const char* t) { _ss << t; return *this; }
-            inline Stream& operator<<(const std::string& t) { _ss << t; return *this; }
-            inline Stream& operator<<(const std::string_view& t) { _ss << t; return *this; }
-            inline Stream& operator<<(const std::thread::id& t) { _ss << t; return *this; }
+            StringStream() = default;
+            inline StringStream& operator<<(char t) { _ss << t; return *this; }
+            inline StringStream& operator<<(bool t) { _ss << (t ? "true" : "false");return *this;}
+            inline StringStream& operator<<(const void* t) { _ss << t; return *this; }
+            inline StringStream& operator<<(const char* t) { _ss << t; return *this; }
+            inline StringStream& operator<<(const std::string& t) { _ss << t; return *this; }
+            inline StringStream& operator<<(const std::string_view& t) { _ss << t; return *this; }
+            inline StringStream& operator<<(const std::thread::id& t) { _ss << t; return *this; }
 
             template<typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, bool>>>
-            Stream& operator<<(T t) {
+            StringStream& operator<<(T t) {
                 _ss << t;
                 return *this;
             }
 
             template<typename T>
-            inline Stream& operator<<(const std::vector<T>& t)
+            inline StringStream& operator<<(const std::vector<T>& t)
             {
                 _ss << '[';
                 for (size_t i = 0; i < t.size(); ++i) {
@@ -42,9 +42,9 @@ namespace plib::core::type{
 
 
             template<typename Container,
-                typename = std::enable_if_t<!std::is_same_v<Stream&, decltype(std::declval<Container>().begin())>>,
+                typename = std::enable_if_t<!std::is_same_v<StringStream&, decltype(std::declval<Container>().begin())>>,
                 typename = std::void_t<decltype(std::declval<Container>().begin(), std::declval<Container>().end())>>
-                inline Stream& operator<<(const Container& container) {
+                inline StringStream& operator<<(const Container& container) {
                 _ss << '[';
                 bool first = true;
                 for (const auto& elem : container) {
@@ -59,7 +59,7 @@ namespace plib::core::type{
             }
 
             template<typename T1, typename T2>
-            inline Stream& operator<<(const std::pair<T1, T2>& p) {
+            inline StringStream& operator<<(const std::pair<T1, T2>& p) {
                 _ss << '(';
                 *this << p.first;
                 _ss << ", ";
