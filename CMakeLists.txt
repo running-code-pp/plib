@@ -48,10 +48,14 @@ find_package(cryptopp REQUIRED)
 find_package(CURL REQUIRED)
 find_package(asio REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(simdjson REQUIRED)
+find_package(benchmark QUIET)
+
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Add subdirectories for each module
 add_subdirectory(src)
-add_subdirectory(unittest) 
+add_subdirectory(test)
+add_subdirectory(benchmarks)

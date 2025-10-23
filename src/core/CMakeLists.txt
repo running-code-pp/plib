@@ -24,6 +24,7 @@ if(CORE_SOURCES)
     target_link_libraries(plib-core PUBLIC
         yaml-cpp::yaml-cpp
         spdlog::spdlog
+        simdjson::simdjson
     )
 else()
     # If no source files found, create an interface library
@@ -35,6 +36,7 @@ else()
     # Link dependencies for interface library
     target_link_libraries(plib-core INTERFACE
         yaml-cpp::yaml-cpp
+        simdjson::simdjson
     )
 endif()
 

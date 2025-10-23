@@ -93,7 +93,12 @@
         "set": "cpp",
         "shared_mutex": "cpp",
         "valarray": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "coroutine": "cpp",
+        "resumable": "cpp",
+        "fstream": "cpp",
+        "codecvt": "cpp",
+        "random": "cpp"
     },
     "C_Cpp.default.includePath": [
         "${workspaceFolder}/include",

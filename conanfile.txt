@@ -8,7 +8,8 @@ libcurl/8.5.0
 asio/1.29.0
 tinyxml2/10.0.0
 yaml-cpp/0.8.0
-sqlite3/3.46.0
+simdjson/3.6.0
+benchmark/1.7.1
 
 [generators]
 CMakeDeps
@@ -22,6 +23,8 @@ asio/*:header_only=True
 tinyxml2/*:shared=True
 yaml-cpp/*:shared=False
 gtest/*:shared=False
+simdjson/*:shared=False
+benchmark/*:shared=False
 
 [imports]
 bin, *.dll -> ./bin
