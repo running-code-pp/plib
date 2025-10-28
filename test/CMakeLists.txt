@@ -9,26 +9,50 @@ file(GLOB_RECURSE TEST_SOURCES "*.cpp")
 # Only create test executable if source files exist
 if(TEST_SOURCES)
     # Test executable
-    add_executable(plib_tests core/core_test.cpp)
+    add_executable(core_tests core/core_test.cpp)
     # Link with plib and GTest
     find_package(GTest REQUIRED)
-    target_link_libraries(plib_tests
+    target_link_libraries(core_tests
         plib-core
         yaml-cpp::yaml-cpp
         GTest::gtest
         GTest::gtest_main
     )
-    
+
     # Add test
-        add_test(NAME plib_tests COMMAND plib_tests --gtest_catch_exceptions=0)
+    add_test(NAME core_tests_case COMMAND core_tests --gtest_catch_exceptions=0)
+
+    add_executable(reflection_test core/reflection_test.cpp)
+    target_link_libraries(reflection_test
+        plib-core
+        yaml-cpp::yaml-cpp
+        GTest::gtest
+        GTest::gtest_main
+        nlohmann_json::nlohmann_json
+    )
+
+    # Add test
+    add_test(NAME reflection_test_case COMMAND reflection_test --gtest_catch_exceptions=0)
+
 else()
     message(WARNING "No test source files found in test directory")
-endif() 
+endif()
 
+find_package(simdjson REQUIRED)
+find_package(nlohmann_json REQUIRED)
+add_executable(simdjson_test other/simd_json_test.cpp)
+
+target_link_libraries(simdjson_test 
+simdjson::simdjson 
+nlohmann_json::nlohmann_json
+)
 
 # 添加独立的线程池测试可执行文件，不使用 gtest
 add_executable(threadpool_test core/threadpool_test.cpp)
 target_link_libraries(threadpool_test plib-core)
+
+add_executable(type_traits_test core/type_traits_test.cpp)
+target_link_libraries(type_traits_test plib-core)
 
 # Optional: Google Benchmark based benchmarks
 find_package(benchmark QUIET)

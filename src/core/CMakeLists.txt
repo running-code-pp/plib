@@ -25,6 +25,7 @@ if(CORE_SOURCES)
         yaml-cpp::yaml-cpp
         spdlog::spdlog
         simdjson::simdjson
+        nlohmann_json::nlohmann_json
     )
 else()
     # If no source files found, create an interface library

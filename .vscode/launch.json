@@ -48,7 +48,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true
+            "console": "integratedTerminal"
         },
         {
             "name": "Debug ThreadPool Test (Linux)",
@@ -118,7 +118,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true,
+            "console": "integratedTerminal",
             "preLaunchTask": "CMake: Build Debug"
         },
         {
@@ -135,7 +135,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true,
+            "console": "integratedTerminal",
             "MIMode": "gdb",
             "miDebuggerPath": "gdb",
             "preLaunchTask": "CMake: Build Debug"
@@ -150,7 +150,41 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug with reflection_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/reflection_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            // "externalConsole": true
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug with simdjson_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/simdjson_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug with type_traits_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/type_traits_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
         }
     ]
 }
