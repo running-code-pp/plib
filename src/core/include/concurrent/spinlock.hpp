@@ -25,7 +25,7 @@ namespace plib::core::concurrent
     class Spinlock
     {
     public:
-        Spinlock() : flag(ATOMIC_FLAG_INIT) {}
+        Spinlock() = default;
 
         void lock()
         {

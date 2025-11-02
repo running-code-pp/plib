@@ -50,7 +50,8 @@ find_package(asio REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(simdjson REQUIRED)
 find_package(benchmark QUIET)
-
+find_package(minizip REQUIRED)
+find_package(breakpad REQUIRED)
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)

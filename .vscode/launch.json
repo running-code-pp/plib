@@ -165,10 +165,10 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Debug with simdjson_test (Windows)",
+            "name": "Debug with config_thirdparty_test (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/Debug/simdjson_test.exe",
+            "program": "${workspaceFolder}/build/bin/Debug/config_thirdparty_test.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/test",
@@ -180,6 +180,39 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/Debug/type_traits_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug with crash_dump_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/crash_dump_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
+        },
+        {
+             "name": "Debug with os_util_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/os_util_test.exe",
+            "args": ["6880","C:\\Users\\33209\\Desktop\\install.txt"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
+        },
+        {
+             "name": "Debug with crash_report_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/crash_report_test.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/test",

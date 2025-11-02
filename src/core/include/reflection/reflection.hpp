@@ -26,7 +26,8 @@ namespace reflection
         virtual size_t size() const { return _size; }
         virtual std::string dump(const void *obj) const = 0;
         virtual nlohmann::json toJson(const void *obj) const = 0;
-        virtual void parse(void* obj, const nlohmann::json& j) const = 0;
+        virtual YAML::Node toYaml(const void *obj) const = 0;
+        virtual void parse(void *obj, const nlohmann::json &j) const = 0;
 
     protected:
         const char *_name;
@@ -49,7 +50,7 @@ namespace reflection
 
         virtual std::string dump(const void *obj) const override
         {
-                return std::format("{}", *(const T *)obj);
+            return std::format("{}", *(const T *)obj);
         }
 
         virtual nlohmann::json toJson(const void *obj) const override
@@ -57,15 +58,15 @@ namespace reflection
             return *(const T *)obj;
         }
 
-        virtual void parse(void* obj, const nlohmann::json& j) const override
+        virtual void parse(void *obj, const nlohmann::json &j) const override
         {
-            *(T*)obj = j.get<T>();
+            *(T *)obj = j.get<T>();
         }
     };
 
     // 前向声明序列容器描述符
-template <typename ContainerType, 
-          std::enable_if_t<is_sequence_container_v<ContainerType>, int> = 0>
+    template <typename ContainerType,
+              std::enable_if_t<is_sequence_container_v<ContainerType>, int> = 0>
     class SequenceContainerDescriptor;
 
     namespace details
@@ -122,8 +123,8 @@ template <typename ContainerType,
     };
 
     // 序列式容器描述符
- template <typename ContainerType, 
-          std::enable_if_t<is_sequence_container_v<ContainerType>, int>>
+    template <typename ContainerType,
+              std::enable_if_t<is_sequence_container_v<ContainerType>, int>>
     class SequenceContainerDescriptor : public TypeDescriptor
     {
     public:
@@ -137,7 +138,7 @@ template <typename ContainerType,
             oss << "[";
             for (const auto &ele : *reinterpret_cast<const ContainerType *>(obj))
             {
-                oss << " " << reflection::getDescriptor<typename ContainerType::value_type>()->dump(&ele)<<",";
+                oss << " " << reflection::getDescriptor<typename ContainerType::value_type>()->dump(&ele) << ",";
             }
             oss << " ]";
             return oss.str();
@@ -153,22 +154,22 @@ template <typename ContainerType,
             return j;
         }
 
-        virtual void parse(void* obj, const nlohmann::json& j) const override
+        virtual void parse(void *obj, const nlohmann::json &j) const override
         {
-            auto* container = reinterpret_cast<ContainerType*>(obj);
+            auto *container = reinterpret_cast<ContainerType *>(obj);
             container->clear();
             if constexpr (is_basic_supported<typename ContainerType::value_type>::value)
             {
-               *container = j.get<ContainerType>();
+                *container = j.get<ContainerType>();
             }
             else
             {
-                    for (const auto& item : j)
-                    {
-                         typename ContainerType::value_type element;
-                         reflection::getDescriptor<typename ContainerType::value_type>()->parse(&element, item);
-                         container->insert(container->end(), std::move(element));
-                    }
+                for (const auto &item : j)
+                {
+                    typename ContainerType::value_type element;
+                    reflection::getDescriptor<typename ContainerType::value_type>()->parse(&element, item);
+                    container->insert(container->end(), std::move(element));
+                }
             }
         }
     };
@@ -178,18 +179,18 @@ template <typename ContainerType,
     {
     public:
         AllocatedContainerDescriptor() : TypeDescriptor("AllocatedContainer", 0) {}
-        
-        virtual std::string dump(const void* obj) const override
+
+        virtual std::string dump(const void *obj) const override
         {
             return "{}";
         }
 
-        virtual nlohmann::json toJson(const void* obj) const override
+        virtual nlohmann::json toJson(const void *obj) const override
         {
             return nlohmann::json::object();
         }
 
-        virtual void parse(void* obj, const nlohmann::json& j) const override
+        virtual void parse(void *obj, const nlohmann::json &j) const override
         {
             // TODO: 实现关联容器的解析
         }
@@ -227,13 +228,13 @@ template <typename ContainerType,
             return json;
         }
 
-        virtual void parse(void* obj, const nlohmann::json& j) const override
+        virtual void parse(void *obj, const nlohmann::json &j) const override
         {
-            for (const auto& mem : members)
+            for (const auto &mem : members)
             {
                 if (j.contains(mem.name))
                 {
-                    void* member_addr = reinterpret_cast<char*>(obj) + mem.offset;
+                    void *member_addr = reinterpret_cast<char *>(obj) + mem.offset;
                     mem.type->parse(member_addr, j[mem.name]);
                 }
             }
@@ -264,12 +265,13 @@ template <typename ContainerType,
     }
 
     // 从 JSON 解析对象（使用反射系统）
-    template<typename T>  requires has_get_description<T>
-    T parse_json(const std::string& json_str)
+    template <typename T>
+        requires has_get_description<T>
+    T parse_json(const std::string &json_str)
     {
         nlohmann::json j = nlohmann::json::parse(json_str);
         T obj;
-        auto& desc = T::getDescription();
+        auto &desc = T::getDescription();
         desc.parse(&obj, j);
         return obj;
     }

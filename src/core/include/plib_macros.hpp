@@ -11,10 +11,12 @@
 #endif
 
 // 强制内联
-#ifdef _WIN32
-#define P_INLINE
+#if defined (_MSC_VER)
+#define P_FORCE_INLINE __forceinline
+#elif  defined(__GNUC__)
+#define P_FORCE_INLINE inline __attribute__((always_inline))
 #else
-#define P_INLINE __attribute__((__always_inline__)) inline
+#define P_FORCE_INLINE inline
 #endif
 
 // 避免编译器优化导致内联

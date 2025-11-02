@@ -9,7 +9,10 @@ file(GLOB_RECURSE TEST_SOURCES "*.cpp")
 # Only create test executable if source files exist
 if(TEST_SOURCES)
     # Test executable
-    add_executable(core_tests core/core_test.cpp)
+    add_executable(core_tests
+        core/core_test.cpp
+        core/zlib_helper_test.cpp
+    )
     # Link with plib and GTest
     find_package(GTest REQUIRED)
     target_link_libraries(core_tests
@@ -40,19 +43,35 @@ endif()
 
 find_package(simdjson REQUIRED)
 find_package(nlohmann_json REQUIRED)
-add_executable(simdjson_test other/simd_json_test.cpp)
+add_executable(config_thirdparty_test other/config_thirdparty_test.cpp)
 
-target_link_libraries(simdjson_test 
-simdjson::simdjson 
-nlohmann_json::nlohmann_json
+target_link_libraries(config_thirdparty_test
+    plib-core
+    simdjson::simdjson
+    nlohmann_json::nlohmann_json
+    yaml-cpp::yaml-cpp
 )
 
 # 添加独立的线程池测试可执行文件，不使用 gtest
 add_executable(threadpool_test core/threadpool_test.cpp)
 target_link_libraries(threadpool_test plib-core)
 
+# 测试文件锁
+add_executable(file_lock_test core/file_lock_test.cpp)
+target_link_libraries(file_lock_test plib-core)
+
 add_executable(type_traits_test core/type_traits_test.cpp)
 target_link_libraries(type_traits_test plib-core)
+
+# 测试系统工具函数
+add_executable(os_util_test core/os_util_test.cpp)
+target_link_libraries(os_util_test plib-core)
+
+
+# crashreport 测试
+add_executable(crash_report_test core/crash_report_test.cpp)
+target_link_libraries(crash_report_test plib-core)
+
 
 # Optional: Google Benchmark based benchmarks
 find_package(benchmark QUIET)

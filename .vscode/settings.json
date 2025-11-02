@@ -101,7 +101,12 @@
         "random": "cpp",
         "numeric": "cpp",
         "ranges": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "typeindex": "cpp",
+        "unordered_set": "cpp",
+        "stack": "cpp",
+        "regex": "cpp",
+        "csignal": "cpp"
     },
     "C_Cpp.default.includePath": [
         "${workspaceFolder}/include",

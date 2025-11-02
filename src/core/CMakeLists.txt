@@ -26,6 +26,8 @@ if(CORE_SOURCES)
         spdlog::spdlog
         simdjson::simdjson
         nlohmann_json::nlohmann_json
+        minizip::minizip
+        breakpad::breakpad
     )
 else()
     # If no source files found, create an interface library

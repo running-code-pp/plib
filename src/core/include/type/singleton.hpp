@@ -23,12 +23,6 @@ public:
         return Singleton::s_instance;
     }
     
-    static T* getInstance() {
-        if(Singleton::s_instance==0) {
-            Singleton::s_instance = CreateInstance();
-        }
-        return Singleton::s_instance;
-    }
     
     static void Destroy() {
         if(Singleton::s_instance!=0) {
