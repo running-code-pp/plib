@@ -33,7 +33,6 @@ d:\code\plib
 - **zlib** (1.3)
 - **nlohmann_json** (3.11.3)
 - **spdlog** (1.13.0)
-- **cryptopp** (8.9.0)
 - **libcurl** (8.5.0)
 - **asio** (1.29.0, header-only)
 - **tinyxml2** (10.0.0)
