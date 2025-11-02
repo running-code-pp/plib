@@ -16,7 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
-
+#include "plib_macros.hpp"
 namespace plib::core::utils
 {
 
@@ -67,6 +67,7 @@ namespace plib::core::utils
          */
         voidpf open(const char *filename, int mode)
         {
+            UNUSED(filename);
             if (mode & ZLIB_FILEFUNC_MODE_READ)
             {
                 _position = 0;
@@ -87,6 +88,7 @@ namespace plib::core::utils
          */
         unsigned long read(voidpf stream, void *buf, unsigned long size)
         {
+            UNUSED(stream);
             if (_error)
             {
                 return 0;
@@ -128,6 +130,7 @@ namespace plib::core::utils
          */
         unsigned long write(voidpf stream, const void *buf, unsigned long size)
         {
+            UNUSED(stream);
             if (_data.size() < _position + size)
             {
                 _data.resize(_position + size);
@@ -142,6 +145,7 @@ namespace plib::core::utils
          */
         int close(voidpf stream)
         {
+            UNUSED(stream);
             int result = _error;
             _position = 0;
             _error = 0;
@@ -153,6 +157,7 @@ namespace plib::core::utils
          */
         int error(voidpf stream) const
         {
+            UNUSED(stream);
             return _error;
         }
 
@@ -161,6 +166,7 @@ namespace plib::core::utils
          */
         long tell(voidpf stream) const
         {
+            UNUSED(stream);
             return static_cast<long>(_position);
         }
 
@@ -169,7 +175,8 @@ namespace plib::core::utils
          */
         long seek(voidpf stream, long offset, int origin)
         {
-            if (_error)
+            UNUSED(stream);
+            if (!_error)
             {
                 switch (origin)
                 {
@@ -199,7 +206,7 @@ namespace plib::core::utils
 
         static unsigned long Read(voidpf opaque, voidpf stream, void *buf, unsigned long size)
         {
-            InMemoryFile *memFile = static_cast<InMemoryFile *>(stream);
+            InMemoryFile *memFile = static_cast<InMemoryFile *>(opaque);
             return memFile->read(stream, buf, size);
         }
 

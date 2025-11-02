@@ -12,6 +12,8 @@ if(TEST_SOURCES)
     add_executable(core_tests
         core/core_test.cpp
         core/zlib_helper_test.cpp
+        core/bignum_test.cpp
+        core/utils_test.cpp
     )
     # Link with plib and GTest
     find_package(GTest REQUIRED)

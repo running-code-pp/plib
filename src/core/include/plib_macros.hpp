@@ -89,5 +89,7 @@
     #define CPU_PAUSE() std::this_thread::yield()
 #endif
 
+// 标记未使用的变量，避免编译器警告
+#define UNUSED(x) (void)(x)
 
 #endif // PLIB_CORE_PLIB_MACROS_HPP_

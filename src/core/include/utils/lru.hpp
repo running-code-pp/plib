@@ -1,10 +1,10 @@
-#ifndef PLIB_CORE_CACHE_LRU_HPP
-#define PLIB_CORE_CACHE_LRU_HPP
+#ifndef PLIB_CORE_UTILS_LRU_HPP
+#define PLIB_CORE_UTILS_LRU_HPP
 
 #include <list>
 #include <unordered_map>
 
-namespace plib::core::cache {
+namespace plib::core::utils {
 
 template <typename Entry>
 class LRU {
@@ -60,6 +60,6 @@ Entry LRU<Entry>::take_lowest() {
 	return result;
 }
 
-} // namespace plib::core::cache
+} // namespace plib::core::utils
 
-#endif // PLIB_CORE_CACHE_LRU_HPP
+#endif // PLIB_CORE_UTILS_LRU_HPP

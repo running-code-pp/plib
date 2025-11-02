@@ -218,6 +218,17 @@
             "cwd": "${workspaceFolder}/test",
             "environment": [],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug with core_tests (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/core_tests.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
         }
     ]
 }

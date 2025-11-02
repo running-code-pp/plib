@@ -1,8 +1,5 @@
 # Core module CMakeLists.txt
 
-# Find required packages
-find_package(yaml-cpp REQUIRED)
-
 # Recursively collect all source files from src/ and all headers from include/
 file(GLOB_RECURSE CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -28,6 +25,7 @@ if(CORE_SOURCES)
         nlohmann_json::nlohmann_json
         minizip::minizip
         breakpad::breakpad
+        openssl::openssl
     )
 else()
     # If no source files found, create an interface library
