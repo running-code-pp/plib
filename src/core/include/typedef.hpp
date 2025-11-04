@@ -15,11 +15,12 @@
 #else
 #include <unistd.h>
 #endif
-
+#include <cstdint>
+#include <cstddef>
+#include <vector>
+// 文件描述符/windows句柄
 namespace plib::core
 {
-
-    // 文件描述符/windows句柄
 #ifdef _WIN32
     using p_descriptor_t = HANDLE;
 
@@ -34,7 +35,17 @@ namespace plib::core
     using p_pid_t = pid_t;
 
 #endif
+} // namespace plib::core
 
-}
+using uint8 = uint8_t;
+using uint16 = uint16_t;
+using uint32 = uint32_t;
+using uint64 = uint64_t;
+using int8 = int8_t;
+using int16 = int16_t;
+using int32 = int32_t;
+using int64 = int64_t;
+using index_t = std::ptrdiff_t;
+using bytearray = std::vector<uint8>;
 
 #endif // PLIB_CORE_TYPEDEF_HPP_
