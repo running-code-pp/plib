@@ -44,3 +44,11 @@ git
 ## 命令
 如果你的构建环境是windows，那么下列所有命令都必须在 x64 Native Tools Command Prompt for VS 2022
 如果是linux那么任意终端都可以
+
+```bash
+git clone https://github.com/running-code-pp/plib.git
+cd plib
+conan install . --output-folder=build --bulid=missing --settings=build_type=Debug
+cmake -S . -B build
+cmake --build build
+``` 
