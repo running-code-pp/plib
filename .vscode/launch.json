@@ -165,17 +165,6 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Debug with config_thirdparty_test (Windows)",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/bin/Debug/config_thirdparty_test.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/test",
-            "environment": [],
-            "console": "integratedTerminal"
-        },
-        {
             "name": "Debug with type_traits_test (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
@@ -198,18 +187,21 @@
             "console": "integratedTerminal"
         },
         {
-             "name": "Debug with os_util_test (Windows)",
+            "name": "Debug with os_util_test (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/Debug/os_util_test.exe",
-            "args": ["6880","C:\\Users\\33209\\Desktop\\install.txt"],
+            "args": [
+                "6880",
+                "C:\\Users\\33209\\Desktop\\install.txt"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/test",
             "environment": [],
             "console": "integratedTerminal"
         },
         {
-             "name": "Debug with crash_report_test (Windows)",
+            "name": "Debug with crash_report_test (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/Debug/crash_report_test.exe",

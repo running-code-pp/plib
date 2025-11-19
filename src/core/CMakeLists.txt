@@ -24,9 +24,14 @@ if(CORE_SOURCES)
         simdjson::simdjson
         nlohmann_json::nlohmann_json
         minizip::minizip
-        breakpad::breakpad
         openssl::openssl
+        breakpad::breakpad
     )
+    
+    # Link breakpad library
+    if(TARGET breakpad)
+        target_link_libraries(plib-core PUBLIC breakpad)
+    endif()
 else()
     # If no source files found, create an interface library
     add_library(plib-core INTERFACE)

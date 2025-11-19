@@ -45,14 +45,7 @@ endif()
 
 find_package(simdjson REQUIRED)
 find_package(nlohmann_json REQUIRED)
-add_executable(config_thirdparty_test other/config_thirdparty_test.cpp)
 
-target_link_libraries(config_thirdparty_test
-    plib-core
-    simdjson::simdjson
-    nlohmann_json::nlohmann_json
-    yaml-cpp::yaml-cpp
-)
 
 # 添加独立的线程池测试可执行文件，不使用 gtest
 add_executable(threadpool_test core/threadpool_test.cpp)

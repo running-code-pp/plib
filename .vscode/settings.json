@@ -111,7 +111,6 @@
     "C_Cpp.default.includePath": [
         "${workspaceFolder}/include",
         "${workspaceFolder}/include/core",
-        "${workspaceFolder}/include/framework",
         "${workspaceFolder}/include/network"
     ],
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
