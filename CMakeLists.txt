@@ -52,6 +52,7 @@ find_package(benchmark QUIET)
 find_package(minizip REQUIRED)
 find_package(openssl REQUIRED)
 find_package(breakpad REQUIRED)
+find_package(CURL REQUIRED)
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)

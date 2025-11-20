@@ -67,6 +67,17 @@ target_link_libraries(os_util_test plib-core)
 add_executable(crash_report_test core/crash_report_test.cpp)
 target_link_libraries(crash_report_test plib-core)
 
+# libcurl 测试
+add_executable(libcurl_test lib_cur_test.cpp)
+target_link_libraries(libcurl_test
+     CURL::libcurl
+    GTest::gtest
+    GTest::gtest_main
+)
+
+# Add test
+add_test(NAME libcurl_test_case COMMAND libcurl_test --gtest_catch_exceptions=0)
+
 
 # Optional: Google Benchmark based benchmarks
 find_package(benchmark QUIET)

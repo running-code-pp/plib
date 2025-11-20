@@ -221,6 +221,17 @@
             "cwd": "${workspaceFolder}/test",
             "environment": [],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug with libcurl_test (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/Debug/libcurl_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "console": "integratedTerminal"
         }
     ]
 }

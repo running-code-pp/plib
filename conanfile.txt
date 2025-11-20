@@ -3,7 +3,7 @@ zlib/1.3
 nlohmann_json/3.11.3
 spdlog/1.13.0
 gtest/1.14.0
-libcurl/8.5.0
+libcurl/8.16.0
 asio/1.29.0
 tinyxml2/10.0.0
 yaml-cpp/0.8.0
@@ -11,21 +11,54 @@ simdjson/3.6.0
 benchmark/1.7.1
 minizip/1.3.1
 openssl/3.4.0
+zstd/1.5.5
 
 [generators]
 CMakeDeps
 CMakeToolchain
 
+
 [options]
+# 基础库
+zlib/*:shared=False
+
+# 日志 & 测试
 spdlog/*:shared=False
-libcurl/*:shared=True
-asio/*:header_only=True
-tinyxml2/*:shared=True
-yaml-cpp/*:shared=False
 gtest/*:shared=False
-simdjson/*:shared=False
 benchmark/*:shared=False
+
+# 解析库
+tinyxml2/*:shared=True        # 如果你的主程序需要动态加载，可保留 True；否则建议 False
+yaml-cpp/*:shared=False
+simdjson/*:shared=False
 minizip/*:shared=False
+zstd/*:shared=False
+
+
+
+
+# 网络 & HTTP
+asio/*:header_only=True
+openssl/*:shared=False        # ⚠️ 关键！OpenSSL 也建议静态链接进 libcurl
+libcurl/*:shared=False
+libcurl/*:fPIC=True
+libcurl/*:with_ssl=openssl
+libcurl/*:with_openssl=True
+libcurl/*:with_http=True
+libcurl/*:with_zlib=True
+libcurl/*:with_nghttp2=True
+libcurl/*:with_brotli=True
+libcurl/*:with_zstd=True
+libcurl/*:with_proxy=True
+libcurl/*:with_ipv6=True
+libcurl/*:with_cookies=True
+libcurl/*:with_form_api=True
+libcurl/*:with_threaded_resolver=True
+libcurl/*:with_symbol_hiding=True
+libcurl/*:with_verbose_debug=True
+libcurl/*:with_c_ares=True
+
+
 
 [imports]
 bin, *.dll -> ./bin
